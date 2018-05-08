@@ -1,49 +1,138 @@
+Webpack Benefits
+----------------
 
-## Course Details
+    Ineractive Coding - Hot Module Reload (HMR)
 
-- [Initial code](https://github.com/g0t4/optimizing-web-apps-webpack/tree/webpack-javascript-start)
-- [Final code](https://github.com/g0t4/optimizing-web-apps-webpack/tree/webpack-javascript-end)
+    Seamless Compilation of anything - Code, styles, layout, images, fonts, etc.
 
-**Tentative** webpack course series:
-1. (publishing soon) Webpack: Transpiling and Bundling JavaScript
-2. **(tentative)** *Webpack: Beyond JavaScript*
-3. **(tentative)** *Webpack: Bundle Optimization*
+Compiling HTML down to a render function - Ahead of Time Compilation
+    Compile at build time rather than run time. template-compiler
 
-**Tentative means not set in stone.**
+Sophisticated Bundling - bundle per page, bundle/code splitting, minify, lazy loading bundles, remove unused code
 
-- Course #1 uses webpack v3. Tentatively there will be a guide about upgrading from webpack v3 to v4 in Course #2.
-- Course #2 and #3 will be created after webpack v4 RTM.
-- Course #1 is bundling and transpiling JavaScript.
-- Course #2 is bundling and transpiling/compiling everything else in a front end app: styles, layouts, images, webassembly, etc.
-- Course #3 is then about optimizing the bundles!
+Caching - Can be tailored to development and production separately
+    Don't want in development (change isn't working or did the page just not reload)
+    Production - Want it to improve user experience.
+        But when you do a deployment you want to make sure users get the latest version
 
-## Errata / Updates
+Source Map - Can map back to original code. 
 
-**Check here for notes about updates to webpack that are related to materials covered in the course series**
+Platform for Transformation - Loaders - through babel, but also webpack - codegen, codemon, inject features like
+offline support (offline-plugin) - Uses ServiceWorker and if that doesn't work it uses AppCache, etc.
 
-- webpack v4 ([based on latest alpha.5](https://github.com/webpack/webpack/releases/tag/v4.0.0-alpha.5))
-    - **Nothing has fundamentally changed in webpack v4 that obviates what was covered in Course #1.**
-    - CLI extracted to new `webpack-cli` package
-        - Just **`npm install webpack-cli` instead of `npm install webpack`**
-        - `webpack` package will only provide the API
-        - See redirection in webpack package's [`bin\webpack.js`](https://github.com/webpack/webpack/blob/next/bin/webpack.js#L15)
-    - [`entry` defaults to `./src`](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsDefaulter.js#L20)
-    - [`output.path` defaults to absolute path to `./dist`](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsDefaulter.js#L117)
-    - New, required `mode` config adds common optimization plugins
-        - **This is simply a new configuration style!**
-        - Matching `--mode` CLI argument
-        - Intended to be `production` or `development` to optimize accordingly
-        - Coarse `mode` maps to new, granular `optimization.*` settings. Most of these are flags to enable/disable a plugin.
-            - See `mode` => `optimization.*` mapping in [`WebpackOptionsDefaulter.js`](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsDefaulter.js#L158-L200) (search for `mode`)
-            - See `optimization.*` => plugins mapping in [`WebpackOptionsApply.js`](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsApply.js#L273-L310) (search for `optimization`)
-        - **To use webpack v4 with Course #1 set `mode: "none"`** to disable this new configuration style.
-            - All you're doing is turning off some webpack features, notably bundle optimization. Doing this is helpful to learn what is going on under the hood. You can incrementally add back optimizations and look at the bundle impact one at a time.
-            - This is likely how I will teach going forward even with v4.
-        - **Most of the optimization plugins won't be covered until Course #3 so this is largely irrelevant.** The following new flags relate to topics covered in Course #1 `if mode == 'development'`:
-            - [`optimization.namedModules` adds NamedModulesPlugin](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsDefaulter.js#L185)
-            - [`devtool` defaults to `eval`](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsDefaulter.js#L22)
-            - [`output.pathinfo` defaults to `true`](https://github.com/webpack/webpack/blob/next/lib/WebpackOptionsDefaulter.js#L118)
-        - This new `mode` compliments techniques shown in Course #1's `Dev Isn't Prod` module.
+Everything you plugin can benefit from Ahead of Time Compilation
 
+Incremenal builds - Even without interactive coding you can benefit from only compiling changed modules
 
- 
+Webpack is a Compiler Platform - Extensible via Plugins and Loaders
+DO NOT NEED TO USE npx FOR A SCRIPT IN PACKAGE.JSON
+`npx webpack source destination`
+
+Script "prestart" will always run before anything else
+
+"use strict";
+webpack can detect if an import is a js file and will automatically use strict
+Polyfil into browsers that don't understand js modules.
+
+webpack-stats-graph
+
+    npx webpack app/app.js app/dist/app.bundle.js --json > stats.json
+    webpack-stats-graph
+    or (--help for more options)
+    webpack-stats-graph --show-size
+
+Turned out to be an encoding issue with Powershell. VSCode used it for integrated terminal on my machine. For future users stumbling across this, use the following command to get build stats file in Powershell -
+webpack --profile --json | Out-file 'dist/stats.json' -Encoding OEM
+webpack --profile --json > dist/stats.json (Can generate stats with a webpack config file)
+
+Watch Mode
+    npx webpack --watch app/app.js app/dist/app.bundle.js
+        It's watching for files to change
+
+Refresh (Live Reload)
+    webpack-dev-server (dev dependency)
+    npx webpack-dev-server --open (open up browser window)
+    NEEDS webpack.config.js
+
+    Static assets (i.e. html) are not a part of the bundle and webpack-dev-server will not watch for changes.
+
+Webpack-dev-server serves the webpack output from an in memory file system.
+
+Good trouble shootin point:
+    localhost:8080/webpack-dev-server
+
+|||||Preserve log option to make sure rapidly changing console.logs or network requests do not vanish.
+
+Hot Module Replacement
+    Instead of reloading we can have code that simply updates part of the application, in memory in the browser.
+
+    Can use Redux HMR instead of configuring webpack for this.
+
+nodemon -w webpack.config.js -x webpack-dev-server -- --open
+Tells nodemon to watch for changes to webpack.config.js and the execute webpack-dev-server when changes are detected.
+The -- --open tells nodemon that those arguments are not for it.
+
+cross-env node package needed!
+cross-env NODE_ENV=production (Will work on Mac and Windows)
+
+Webpack Environment Options
+    webpack --env.prod --env min
+
+Exporting Multiple Configurations by Name
+
+-------------
+
+babel-loader : Webpack plugin for Babel
+    Loder is just a transformation
+
+babel-core : Compiler
+
+Babel is composed of plugins that perform the transformations
+A preset is just a group of plugins
+
+babel-preset-env : Browserslist to specify constraints
+    Which browser should I use??
+
+@babel/polyfill just used for IE browser since it can't handle promises etc
+Should have automated tests for the polyfills
+
+---------
+
+The grouping in tee-loader.js is well understood in Chrome debugger. Accessed below
+Get node inspector manager
+node --inspect-brk node_modules/.bin/webpack --env production (Can see in debugger in chrome)
+
+REALLY USEFUL
+    node --inspect-brk node_modules/webpack/bin/webpack --env production (WINDOWS)
+
+cache-loader (to cache the output of babel for example)
+    if a file hasn't changed, you could cache to disk and speed up that scenario
+    Pitching Loader!!
+
+From Dev to Prod
+    Clean up files (so previous build artifacts don't accidentally get released)
+    Copy files like HTML page
+    Fingerprint of application page
+    Take all deploy files and Zip them up
+
+npm-install-plugin (Dev Task - Useful to download node modules without stopping dev server)
+
+copy-webpack-plugin (Acts like the npm run build script)
+
+compression-plugin (Reduce size of plugin)
+
+HtmlWebpackPlugin (Simplifies creation of HTML files to serve webpack bundles)
+
+Awesome Webpack github repository
+
+Maybe Use Gulp.js?? Just let Webpack do bundling??
+
+-------------
+
+Source Maps - Give ability to reference back to original code
+NOT NECESSARILY NEEDED
+
+hidden-source-map - Can prevent clients from seeing our source maps in prouduction 
+nosource-source-map - Can only map line numbers and original files but no code
+
+Can apply source maps with plugins instead of a string
