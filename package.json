@@ -1,9 +1,18 @@
 {
   "name": "solitaire",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "webpack": "^3.11.0",
+    "webpack-stats-graph": "^1.0.8"
+  },
   "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.40",
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/polyfill": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "babel-loader": "^8.0.0-beta.0",
     "bower": "^1.8.2",
+    "clean-webpack-plugin": "^0.1.18",
     "eslint": "^4.9.0",
     "http-server": "^0.10.0",
     "jasmine-core": "^2.8.0",
@@ -11,12 +20,16 @@
     "karma-chrome-launcher": "^2.2.0",
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
-    "karma-junit-reporter": "^1.2.0"
+    "karma-junit-reporter": "^1.2.0",
+    "nodemon": "^1.14.12",
+    "webpack-dev-server": "^2.11.1",
+    "webpack-merge": "^4.1.1"
   },
   "scripts": {
+    "build": "webpack app/app.js app/dist/app.bundle.js",
+    "start": "nodemon -w webpack.config.js -x webpack-dev-server -- --env development",
     "postinstall": "node node_modules/bower/bin/bower install",
-    "prestart": "npm install",
-    "start": "http-server -c-1 -o",
+    "old_start": "http-server -c-1 -o",
     "pretest": "npm install",
     "test": "karma start karma.conf.js",
     "test-single-run": "karma start karma.conf.js --single-run"
